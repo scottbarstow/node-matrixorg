@@ -38,4 +38,23 @@ describe("client tests", function(){
       })
     })
   })
+
+  describe("#register", function() {
+    var response = {
+      "access_token": "atoken",
+      "home_server": "localhost",
+      "user_id":"@example:localhost"
+    }
+    it("should register successfully", function(done){
+      helper.nock().post("/_matrix/client/api/v1/register").reply(200, response);
+      helper.createClient().register({"username":"test", "password":"password", "type":"m.login.password"}, function(err, res){
+        if(err){
+          return done(err)
+        }
+        res.access_token.should.eql(response.access_token)
+        done();
+      })
+    })
+
+  })
 });
