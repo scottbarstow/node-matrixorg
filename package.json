@@ -21,6 +21,7 @@
   },
   "homepage": "https://github.com/scottbarstow/node-matrixorg",
   "dependencies": {
+    "bluebird": "^2.9.15",
     "superagent": "^0.21.0"
   },
   "devDependencies": {
