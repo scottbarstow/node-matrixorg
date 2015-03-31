@@ -137,5 +137,60 @@ describe("Matrix Client tests", function(){
         done();
       })
     })
+
+    it("should set room name successfully", function(done) {
+      helper.nock().put("/_matrix/client/api/v1/rooms/" + 
+        encodeURIComponent("test_room_id") + "/state/m.room.name?access_token=access_token").reply(200);
+
+      helper.createClient("access_token").setRoomName("test_room_id", "test name", function(err,res){
+        if(err){
+          done(new Error("should not have failed"))
+        }
+        res.should.eql({})
+        done();
+      })
+    });
+
+    it("should get room name successfully", function(done) {
+      helper.nock().get("/_matrix/client/api/v1/rooms/" + 
+        encodeURIComponent("test_room_id") + "/state/m.room.name?access_token=access_token").reply(200, {"name": "test room"});
+
+      helper.createClient("access_token").getRoomName("test_room_id", function(err,data){
+        if(err){
+          done(new Error("should not have failed"))
+        }
+        data.name.should.eql("test room");
+        done();
+      })
+    });
+
+    it("should set room topic successfully", function(done) {
+      helper.nock().put("/_matrix/client/api/v1/rooms/" + 
+        encodeURIComponent("test_room_id") + "/state/m.room.topic?access_token=access_token").reply(200);
+
+      helper.createClient("access_token").setRoomTopic("test_room_id", "test topic", function(err,res){
+        if(err){
+          done(new Error("should not have failed"))
+        }
+        res.should.eql({})
+        done();
+      })
+    });
+
+    it("should get room topic successfully", function(done) {
+      helper.nock().get("/_matrix/client/api/v1/rooms/" + 
+        encodeURIComponent("test_room_id") + "/state/m.room.topic?access_token=access_token").reply(200, {"name": "test topic"});
+
+      helper.createClient("access_token").getRoomTopic("test_room_id", function(err,data){
+        if(err){
+          done(new Error("should not have failed"))
+        }
+        data.name.should.eql("test topic");
+        done();
+      })
+    });
+
+
+
   });
 });
