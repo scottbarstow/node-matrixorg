@@ -37,7 +37,31 @@ client.register("m.login.password", {"user":"user", "password":"password"}, func
 
 client.login("m.login.password", {"user":"youruser", "passwword":"password", function(err,res){
 	console.log("access token: " + res.access_token)
+  client.access_token = res.access_token;
+  client.user_id = res.user_id;
+  console.log("Client is logged in properly: " + client.isLoggedIn())
+});
+```
+
+## Room methods
+
+```js
+// Create a room
+client.createRoom("my room", function(err, room){
+  console.log("room id: " + room.room_id);
 });
 
+//invite users to a room
+var roomId = "foo";
+var userId = "bar";
+client.inviteToRoom(roomId, userId, callback);
 
+//leave a room
+client.leaveRoom(roomId, callback);
+
+//join a room
+client.joinRoom(roomId, callback);
+
+//ban user from room
+client.banFromRoom(roomId, userId, "Too chatty", callback);
 ```

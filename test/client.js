@@ -20,14 +20,14 @@ describe("Matrix Client tests", function(){
     });
   });
 
-  describe("#login", function() {
-    var response = {
-      "access_token": "atoken",
-      "home_server": "localhost",
-      "user_id":"@example:localhost"
-    }
-
+  describe("#authentication tests", function() {
     it("should login successfully", function(done){
+      var response = {
+        "access_token": "atoken",
+        "home_server": "localhost",
+        "user_id":"@example:localhost"
+      }
+
       helper.nock().post("/_matrix/client/api/v1/login").reply(200, response);
       helper.createClient().login("m.login.password", {"username":"test", "password":"password"}, function(err, res){
         if(err){
@@ -37,15 +37,14 @@ describe("Matrix Client tests", function(){
         done();
       })
     })
-  })
 
-  describe("#register", function() {
-    var response = {
-      "access_token": "atoken",
-      "home_server": "localhost",
-      "user_id":"@example:localhost"
-    }
     it("should register successfully", function(done){
+      var response = {
+        "access_token": "atoken",
+        "home_server": "localhost",
+        "user_id":"@example:localhost"
+      }
+
       helper.nock().post("/_matrix/client/api/v1/register").reply(200, response);
       helper.createClient().register("m.login.password", {"username":"test", "password":"password", "type":"m.login.password"}, function(err, res){
         if(err){
@@ -55,7 +54,27 @@ describe("Matrix Client tests", function(){
         done();
       })
     })
-  }),
+
+    it("isLoggedIn", function(done){
+      var response = {
+        "access_token": "atoken",
+        "home_server": "localhost",
+        "user_id":"@example:localhost"
+      }
+
+      helper.nock().post("/_matrix/client/api/v1/login").reply(200, response);
+      var client = helper.createClient();
+      client.login("m.login.password", {"username":"test", "password":"password"}, function(err, res){
+        if(err){
+          return done(err)
+        }
+        client.access_token = res.access_token;
+        client.user_id = res.user_id;
+        client.isLoggedIn().should.be.true;
+        done();
+      })
+    })
+  });
 
   describe("#presence tests", function() {
     it("Should update status successfully", function(done){
@@ -86,6 +105,7 @@ describe("Matrix Client tests", function(){
           done(new Error("create room failed"))
         }
         room.room_alias.should.eql("test_room");
+        room.room_id.should.eql("test_room_id");
         done();
       })
     });
