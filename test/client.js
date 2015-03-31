@@ -2,7 +2,7 @@ var Client = require("../").Client;
 var nock = require("nock");
 var helper = require("./helper");
 var should = require("should")
-describe("client tests", function(){
+describe("Matrix Client tests", function(){
   before(function(){
     nock.disableNetConnect();
   });
@@ -29,7 +29,7 @@ describe("client tests", function(){
 
     it("should login successfully", function(done){
       helper.nock().post("/_matrix/client/api/v1/login").reply(200, response);
-      helper.createClient().login({"username":"test", "password":"password"}, function(err, res){
+      helper.createClient().login("m.login.password", {"username":"test", "password":"password"}, function(err, res){
         if(err){
           return done(err)
         }
@@ -47,7 +47,7 @@ describe("client tests", function(){
     }
     it("should register successfully", function(done){
       helper.nock().post("/_matrix/client/api/v1/register").reply(200, response);
-      helper.createClient().register({"username":"test", "password":"password", "type":"m.login.password"}, function(err, res){
+      helper.createClient().register("m.login.password", {"username":"test", "password":"password", "type":"m.login.password"}, function(err, res){
         if(err){
           return done(err)
         }
@@ -55,6 +55,87 @@ describe("client tests", function(){
         done();
       })
     })
+  }),
 
-  })
+  describe("#presence tests", function() {
+    it("Should update status successfully", function(done){
+
+      helper.nock().put("/_matrix/client/api/v1/presence/" + encodeURIComponent("@test:localhost")+ "/status?access_token=access_token").reply(200);
+      var client = helper.createClient("access_token", "@test:localhost");
+      client.setPresence("online", "test msg", function(err,res){
+        if(err){
+          return done(err);
+        }else {
+          res.should.be.ok;
+          done();
+        }
+      })
+    })
+  });
+
+  describe("#room tests", function() {
+    it("Should create room successfully", function(done){
+      var roomResponse = {
+        "room_alias":"test_room",
+        "room_id": "test_room_id"
+      }
+      helper.nock().post("/_matrix/client/api/v1/createRoom?access_token=access_token").reply(200, roomResponse);
+      var client = helper.createClient("access_token");
+      client.createRoom({"room_alias_name":"test room"}, function(err, room){
+        if(err){
+          done(new Error("create room failed"))
+        }
+        room.room_alias.should.eql("test_room");
+        done();
+      })
+    });
+
+    it("should join a user to a room successfully", function(done){
+      helper.nock().post("/_matrix/client/api/v1/rooms/" + encodeURIComponent("test_room_id") + "/join?access_token=access_token").reply(200);
+      var client = helper.createClient("access_token");
+      client.joinRoom("test_room_id", function(err,res){
+        if(err){
+          done(new Error("Should not have failed"));
+        }
+        return done();
+     })
+    });
+
+    it("should leave a room successfully", function(done){
+      helper.nock().post("/_matrix/client/api/v1/rooms/" + 
+        encodeURIComponent("test_room_id") + "/leave?access_token=access_token").reply(200);
+      var client = helper.createClient("access_token");
+      client.leaveRoom("test_room_id", function(err, res){
+        if(err){
+          done(new Error("should not have failed"));
+        }
+        return done();
+      })
+    });
+
+    it("should invite user to room successfully", function(done){
+      helper.nock().post("/_matrix/client/api/v1/rooms/" + 
+        encodeURIComponent("test_room_id") + "/invite?access_token=access_token").reply(200);
+      helper.createClient("access_token").inviteToRoom("test_room_id", "test_user_id", 
+        function(err,res){
+          if(err){
+            done(new Error("should not have failed"));
+          }
+          res.should.eql({})
+          done();
+      });
+    });
+
+    it("should ban a user from room successfully", function(done){
+      helper.nock().post("/_matrix/client/api/v1/rooms/" + 
+        encodeURIComponent("test_room_id") + "/ban?access_token=access_token").reply(200);
+      helper.createClient("access_token").banFromRoom("test_room_id", "@user_id:localhost", "talks too much", function(err, res){
+        if(err){
+          done(new Error("Should not have failed"));
+        }
+        res.should.eql({})
+        done();
+      })
+    })
+  });
 });

@@ -9,14 +9,14 @@ var Presence = matrix.Presence;
 
 //Create a room
 client.login({"type":"m.login.password", "user":"test","password":"password"}, function(err, res){
-  Room.create(client, {"room_alias_name":"a test room 6"}, function(err, room){
-    if(!err){
-      room.join(function(e,r){
-        if(!e)
-          console.log("Joined room!");
-      })
-    }
-  })
+  // Room.create(client, {"room_alias_name":"a test room 6"}, function(err, room){
+  //   if(!err){
+  //     room.join(function(e,r){
+  //       if(!e)
+  //         console.log("Joined room!");
+  //     })
+  //   }
+  // })
 
 
   var presenceUpdate = {
@@ -31,8 +31,5 @@ client.login({"type":"m.login.password", "user":"test","password":"password"}, f
       console.log("updated status");
     }
   })
-
-
-
 });
 
